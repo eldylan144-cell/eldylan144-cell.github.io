@@ -1,4 +1,7 @@
-<meta charset="UTF-8">
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>La Esquina Minimarket - Catálogo de Precios</title>
     <!-- Tailwind CSS CDN -->
@@ -12,7 +15,7 @@
         .font-title { font-family: 'Playfair Display', serif; }
     </style>
 </head>
-<body class="flex flex-col min-h-full text-[#362f27]">
+<body class="flex flex-col min-h-full text-[#362f27] bg-[#f4ebd0]">
 
     <header class="sticky top-0 z-40 bg-[#5c4033] text-[#f4ebd0] shadow-md border-b-4 border-[#3d281f]">
         <div class="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
@@ -67,7 +70,7 @@
                 </div>
             </div>
 
-            <!-- Grilla de Productos -->
+            <!-- Grilla de Productos con imágenes optimizadas object-contain -->
             <div id="productGrid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
                 <!-- Se llena con JavaScript -->
             </div>
@@ -80,9 +83,9 @@
                         <i data-lucide="x" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                     </button>
                     
-                    <!-- Imagen Grande -->
-                    <div class="bg-[#eaddca] h-48 sm:h-64 relative border-b-2 border-[#b08968] overflow-hidden flex items-center justify-center">
-                        <img id="modalImage" src="" alt="" class="w-full h-full object-cover sepia-[0.1]">
+                    <!-- Imagen Grande con object-contain -->
+                    <div class="bg-[#eaddca] h-60 sm:h-72 relative border-b-2 border-[#b08968] overflow-hidden flex items-center justify-center p-3">
+                        <img id="modalImage" src="" alt="" class="w-full h-full object-contain">
                         <div id="modalBadgeContainer" class="absolute top-2.5 left-2.5 sm:top-3 sm:left-3"></div>
                     </div>
                     
@@ -120,7 +123,6 @@
         </div>
     </main>
 
-    <!-- Footer / Pedido por WhatsApp -->
     <footer class="bg-[#362f27] text-[#d7ccc8] py-6 sm:py-8 px-4 mt-auto border-t-4 border-[#241e18] font-sans">
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
             <div>
@@ -141,7 +143,7 @@
     <script>
         // Lista simple de productos de almacén / minimarket
         let products = [
-            { id: 1, name: "Yerba Sinceridad", category: "Yerba Mate", price: 1250, oldPrice: null, packPrice: "$3.500 (Pack x3)", image: "https://imgs.search.brave.com/4YzXZydWxYumHCtNPlXIfvAiFydcCmk4pdOfwX_E3MI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9kY2Ru/LXVzLm1pdGllbmRh/bnViZS5jb20vc3Rv/cmVzLzAwMS8xMzIv/MDg5L3Byb2R1Y3Rz/LzM3Nzg3NDY0LTBj/ZjA0ODEwMWM3ZWZi/ZGJlMTE1NjI2ODk1/NzQ4NjEwLTY0MC0w/MS00YmI4NTE5YWJl/MmRlODJiMTAxNjQy/ODA5ODkzMjk4Mi00/ODAtMC53ZWJw", badge: null, inStock: true },
+            { id: 1, name: "Yerba Sinceridad", category: "Yerba Mate", price: 1250, oldPrice: null, packPrice: "$3.500 (Pack x3)", image: "https://i.imgur.com/c0OuOAw.png", badge: null, inStock: true },
             { id: 2, name: "Pan Lactal Bimbo Grande", category: "Almacén", price: 1800, oldPrice: 2100, packPrice: null, image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&auto=format&fit=crop&q=80", badge: "Oferta", inStock: true },
             { id: 3, name: "Gaseosa Coca-Cola 2.25L", category: "Bebidas", price: 2900, oldPrice: null, packPrice: "$5.500 (Llevando 2)", image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&auto=format&fit=crop&q=80", badge: "Más Vendido", inStock: true },
             { id: 4, name: "Yerba Mate Playadito 1kg", category: "Almacén", price: 3400, oldPrice: 3800, packPrice: null, image: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=400&auto=format&fit=crop&q=80", badge: "Oferta", inStock: true },
@@ -205,8 +207,9 @@
 
             grid.innerHTML = filtered.map(p => `
                 <div ${p.inStock ? `onclick="openModal(${p.id})"` : ''} class="bg-[#faf0e6] rounded-lg border-2 border-[#b08968] shadow-xs overflow-hidden flex flex-col justify-between ${p.inStock ? 'hover:shadow-md hover:border-[#5c4033] cursor-pointer group' : 'opacity-60 cursor-not-allowed'} transition-all">
-                    <div class="relative bg-[#eaddca] h-32 sm:h-40 overflow-hidden border-b border-[#d5c7b3]">
-                        <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover sepia-[0.1] ${p.inStock ? 'group-hover:scale-105' : ''} transition-transform duration-300" onerror="this.src='https://placehold.co/400x300/eaddca/5c4033?text=Producto'">
+                    <!-- Contenedor con object-contain para que la imagen se vea completa sin cortes -->
+                    <div class="relative bg-[#eaddca] h-40 sm:h-48 overflow-hidden border-b border-[#d5c7b3] flex items-center justify-center p-2">
+                        <img src="${p.image}" alt="${p.name}" class="w-full h-full object-contain ${p.inStock ? 'group-hover:scale-105' : ''} transition-transform duration-300" onerror="this.src='https://placehold.co/400x300/eaddca/5c4033?text=Producto'">
                         ${p.badge ? `<span class="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 bg-[#a97142] text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded shadow-xs border border-[#8d5b31]">${p.badge}</span>` : ''}
                         ${!p.inStock ? `<span class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 bg-[#4a4a4a] text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded">Sin Stock</span>` : ''}
                         ${p.inStock ? `
