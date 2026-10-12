@@ -1,0 +1,312 @@
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Esquina Minimarket - Catálogo de Precios</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Font Playfair Display & Lora -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Lora', serif; }
+        .font-title { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
+<body class="flex flex-col min-h-full text-[#362f27]">
+
+    <header class="sticky top-0 z-40 bg-[#5c4033] text-[#f4ebd0] shadow-md border-b-4 border-[#3d281f]">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-[#452c20] rounded border border-[#795548] shadow-inner">
+                    <i data-lucide="store" class="w-7 h-7 text-[#d7ccc8]"></i>
+                </div>
+                <div>
+                    <h1 class="font-title text-2xl tracking-wide text-[#faf0e6]">La Esquina Minimarket</h1>
+                    <p class="text-xs text-[#d7ccc8] italic font-sans">Catálogo de precios y despensa</p>
+                </div>
+            </div>
+
+            <!-- Buscador Rápido -->
+            <div class="w-full sm:w-72 relative font-sans">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-500"></i>
+                <input type="text" id="searchInput" oninput="filterProducts()" placeholder="Buscar producto..." 
+                       class="w-full pl-9 pr-4 py-2 bg-[#faf0e6] text-stone-800 rounded border border-[#8d6e63] text-sm focus:outline-none focus:ring-2 focus:ring-[#a1887f]">
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full font-sans">
+        <!-- VISTA CLIENTE / CATÁLOGO -->
+        <div id="clientView">
+            <!-- Aviso / Oferta del día -->
+            <div class="bg-[#eaddca] border-2 border-dashed border-[#b08968] rounded-xl p-4 mb-6 flex items-center space-x-3 text-[#5c4033] text-sm shadow-xs">
+                <i data-lucide="tag" class="w-5 h-5 shrink-0 text-[#9c6644]"></i>
+                <div>
+                    <span class="font-semibold">¡Atención vecinos!</span> Consultá la disponibilidad o armá tu pedido directamente por WhatsApp.
+                </div>
+            </div>
+
+            <!-- Filtros de Categorías Desplegables -->
+            <div class="mb-6 font-sans flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[#eaddca] p-3 rounded-lg border border-[#b08968]">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="filter" class="w-4 h-4 text-[#8d5b31]"></i>
+                    <span class="text-xs font-semibold text-[#5c4033] uppercase tracking-wider">Filtrar por sección:</span>
+                </div>
+                
+                <!-- Selector Desplegable -->
+                <div class="relative w-full sm:w-64">
+                    <select id="categorySelect" onchange="selectCategoryFromDropdown(this.value)" 
+                            class="w-full appearance-none bg-[#faf0e6] text-[#362f27] py-2 pl-3 pr-10 rounded border border-[#8d6e63] text-sm focus:outline-none focus:ring-2 focus:ring-[#a1887f] cursor-pointer shadow-inner font-medium">
+                        <!-- Opciones cargadas dinámicamente -->
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#5c4033]">
+                        <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grilla de Productos -->
+            <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                <!-- Se llena con JavaScript -->
+            </div>
+
+            <!-- Modal para ampliar producto -->
+            <div id="productModal" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 hidden backdrop-blur-xs transition-opacity duration-300">
+                <div class="bg-[#faf0e6] border-4 border-[#3d281f] rounded-xl max-w-md w-full overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+                    <!-- Botón de Cierre -->
+                    <button onclick="closeModal()" class="absolute top-3 right-3 bg-[#5c4033] hover:bg-[#3d281f] text-[#faf0e6] w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-colors z-10 border border-[#b08968]">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                    
+                    <!-- Imagen Grande -->
+                    <div class="bg-[#eaddca] h-64 relative border-b-2 border-[#b08968] overflow-hidden flex items-center justify-center">
+                        <img id="modalImage" src="" alt="" class="w-full h-full object-cover sepia-[0.1]">
+                        <div id="modalBadgeContainer" class="absolute top-3 left-3"></div>
+                    </div>
+                    
+                    <!-- Información del Producto -->
+                    <div class="p-5 font-sans">
+                        <span id="modalCategory" class="text-xs font-bold text-[#8d5b31] uppercase tracking-wider block mb-1"></span>
+                        <h2 id="modalTitle" class="font-title text-2xl text-[#362f27] leading-tight mb-3"></h2>
+                        
+                        <div class="flex items-center justify-between py-3 border-y border-[#d5c7b3] my-3">
+                            <div id="modalPrice"></div>
+                            <div id="modalStockStatus"></div>
+                        </div>
+
+                        <p class="text-xs text-stone-600 italic mt-2">
+                            * Para consultar stock o realizar un pedido de este ítem, podés enviarnos un mensaje vía WhatsApp.
+                        </p>
+
+                        <!-- Botón directo WhatsApp desde el Modal -->
+                        <div class="mt-5">
+                            <a id="modalWhatsappLink" href="#" target="_blank" class="w-full py-2.5 bg-[#6b8e23] hover:bg-[#556b2f] text-white font-semibold rounded shadow flex items-center justify-center space-x-2 transition-all border border-[#485e1e]">
+                                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                <span>Consultar por este producto</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estado Vacío -->
+            <div id="emptyState" class="hidden text-center py-16 bg-[#eaddca] rounded-xl border border-dashed border-[#b08968] mt-4">
+                <i data-lucide="search-x" class="w-10 h-10 text-stone-500 mx-auto mb-2"></i>
+                <h3 class="font-bold text-stone-700">No se encontraron productos</h3>
+                <p class="text-xs text-stone-600 mt-1">Intenta buscar con otra palabra clave.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer / Pedido por WhatsApp -->
+    <footer class="bg-[#362f27] text-[#d7ccc8] py-8 px-4 mt-auto border-t-4 border-[#241e18] font-sans">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+            <div>
+                <h4 class="font-title text-lg text-[#faf0e6]">¿Querés hacer un pedido para retirar o delivery?</h4>
+                <p class="text-xs text-stone-400 mt-1">Envianos un mensaje con tu lista y te armamos el pedido.</p>
+            </div>
+            <a href="https://wa.me/5493364545609?text=Hola!%20Quisiera%20consultar%20por%20productos%20de%20La%20Esquina%20Minimarket." target="_blank" 
+               class="px-5 py-3 bg-[#6b8e23] hover:bg-[#556b2f] text-white font-semibold rounded shadow-md flex items-center space-x-2 transition-all border border-[#485e1e]">
+                <i data-lucide="message-circle" class="w-5 h-5"></i>
+                <span>Enviar mensaje por WhatsApp</span>
+            </a>
+        </div>
+        <div class="max-w-6xl mx-auto pt-6 mt-6 border-t border-stone-700/60 text-center text-xs text-stone-400">
+            &copy; 2026 La Esquina Minimarket. Precios expresados en pesos.
+        </div>
+    </footer>
+
+    <script>
+        // Lista simple de productos de almacén / minimarket
+        let products = [
+            { id: 1, name: "Yerba Sinceridad 500g", category: "Yerba Mate", price: 1250, oldPrice: null, packPrice: "$3.500 (Pack x3)", image: "https://imgs.search.brave.com/4YzXZydWxYumHCtNPlXIfvAiFydcCmk4pdOfwX_E3MI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9kY2Ru/LXVzLm1pdGllbmRh/bnViZS5jb20vc3Rv/cmVzLzAwMS8xMzIv/MDg5L3Byb2R1Y3Rz/LzM3Nzg3NDY0LTBj/ZjA0ODEwMWM3ZWZi/ZGJlMTE1NjI2ODk1/NzQ4NjEwLTY0MC0w/MS00YmI4NTE5YWJl/MmRlODJiMTAxNjQy/ODA5ODkzMjk4Mi00/ODAtMC53ZWJw", badge: null, inStock: true },
+            { id: 2, name: "Pan Lactal Bimbo Grande", category: "Almacén", price: 1800, oldPrice: 2100, packPrice: null, image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&auto=format&fit=crop&q=80", badge: "Oferta", inStock: true },
+            { id: 3, name: "Gaseosa Coca-Cola 2.25L", category: "Bebidas", price: 2900, oldPrice: null, packPrice: "$5.500 (Llevando 2)", image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&auto=format&fit=crop&q=80", badge: "Más Vendido", inStock: true },
+            { id: 4, name: "Yerba Mate Playadito 1kg", category: "Almacén", price: 3400, oldPrice: 3800, packPrice: null, image: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=400&auto=format&fit=crop&q=80", badge: "Oferta", inStock: true },
+            { id: 5, name: "Fideos Spaghetti Marolio 500g", category: "Almacén", price: 850, oldPrice: null, packPrice: "$2.400 (Pack x3)", image: "https://images.unsplash.com/photo-1551462147-3f005cca21c0?w=400&auto=format&fit=crop&q=80", badge: null, inStock: true },
+            { id: 6, name: "Queso Cremoso La Paulina (x 100g)", category: "Lácteos", price: 980, oldPrice: null, packPrice: null, image: "https://images.unsplash.com/photo-1452195100486-9cc805987862?w=400&auto=format&fit=crop&q=80", badge: null, inStock: true },
+            { id: 7, name: "Aceite de Girasol Cocinero 1.5L", category: "Almacén", price: 2400, oldPrice: null, packPrice: null, image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&auto=format&fit=crop&q=80", badge: null, inStock: false },
+            { id: 8, name: "Agua Mineral Villavicencio 1.5L", category: "Bebidas", price: 1100, oldPrice: null, packPrice: "$3.000 (Pack x3)", image: "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&auto=format&fit=crop&q=80", badge: null, inStock: true },
+            { id: 9, name: "Lavandina Ayudín 1L", category: "Limpieza", price: 1300, oldPrice: null, packPrice: null, image: "https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400&auto=format&fit=crop&q=80", badge: null, inStock: true },
+            { id: 10, name: "Papel Higiénico Higienol 4 Unidades", category: "Limpieza", price: 1950, oldPrice: 2300, packPrice: null, image: "https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?w=400&auto=format&fit=crop&q=80", badge: "Oferta", inStock: true },
+            { id: 11, name: "Galletitas Melitas 3 Algarrobos", category: "Kiosco", price: 900, oldPrice: null, packPrice: null, image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&auto=format&fit=crop&q=80", badge: null, inStock: true },
+            { id: 12, name: "Cerveza Heineken Lata 473ml", category: "Bebidas", price: 1700, oldPrice: 1900, packPrice: "$4.800 (Pack x3)", image: "https://images.unsplash.com/photo-1608270105747-2339d17d549f?w=400&auto=format&fit=crop&q=80", badge: "Oferta", inStock: true }
+        ];
+
+        let currentCategory = "Todos";
+
+        window.onload = function() {
+            renderCategories();
+            renderProducts();
+            lucide.createIcons();
+        };
+
+        function renderCategories() {
+            const categories = ["Todos", ...new Set(products.map(p => p.category))];
+            const selectEl = document.getElementById('categorySelect');
+            
+            selectEl.innerHTML = categories.map(cat => `
+                <option value="${cat}" ${currentCategory === cat ? 'selected' : ''}>
+                    ${cat === 'Todos' ? 'Todas las secciones' : cat}
+                </option>
+            `).join('');
+        }
+
+        function selectCategoryFromDropdown(cat) {
+            currentCategory = cat;
+            renderProducts();
+        }
+
+        function filterProducts() {
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const grid = document.getElementById('productGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            const filtered = products.filter(p => {
+                const matchesCategory = currentCategory === "Todos" || p.category === currentCategory;
+                const matchesQuery = p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query);
+                return matchesCategory && matchesQuery;
+            });
+
+            if (filtered.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            grid.innerHTML = filtered.map(p => `
+                <div ${p.inStock ? `onclick="openModal(${p.id})"` : ''} class="bg-[#faf0e6] rounded-lg border-2 border-[#b08968] shadow-sm overflow-hidden flex flex-col justify-between ${p.inStock ? 'hover:shadow-md hover:border-[#5c4033] cursor-pointer group' : 'opacity-60 cursor-not-allowed'} transition-all">
+                    <div class="relative bg-[#eaddca] h-40 overflow-hidden border-b border-[#d5c7b3]">
+                        <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover sepia-[0.1] ${p.inStock ? 'group-hover:scale-105' : ''} transition-transform duration-300" onerror="this.src='https://placehold.co/400x300/eaddca/5c4033?text=Producto'">
+                        ${p.badge ? `<span class="absolute top-2 left-2 bg-[#a97142] text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs border border-[#8d5b31]">${p.badge}</span>` : ''}
+                        ${!p.inStock ? `<span class="absolute top-2 right-2 bg-[#4a4a4a] text-white text-[10px] font-bold px-2 py-0.5 rounded">Sin Stock</span>` : ''}
+                        ${p.inStock ? `
+                            <div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                <span class="bg-[#5c4033] text-[#faf0e6] text-xs font-semibold px-2.5 py-1 rounded shadow flex items-center gap-1">
+                                    <i data-lucide="zoom-in" class="w-3.5 h-3.5"></i> Ver detalle
+                                </span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="p-4 flex flex-col justify-between flex-grow">
+                        <div>
+                            <span class="text-[10px] font-bold text-[#8d5b31] uppercase tracking-wider">${p.category}</span>
+                            <h3 class="font-title text-base text-[#362f27] mt-0.5 leading-snug">${p.name}</h3>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-[#d5c7b3]">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="text-[10px] text-stone-600 block">Precio unitario</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-base font-bold text-[#362f27]">$${p.price.toLocaleString('es-AR')}</span>
+                                        ${p.oldPrice ? `<span class="text-xs text-stone-400 line-through">$${p.oldPrice.toLocaleString('es-AR')}</span>` : ''}
+                                    </div>
+                                </div>
+                                <span class="text-xs ${p.inStock ? 'text-[#3b5323] bg-[#e3ebd8] border border-[#c1d3af]' : 'text-stone-600 bg-stone-200'} px-2 py-0.5 rounded font-medium">
+                                    ${p.inStock ? 'En stock' : 'Agotado'}
+                                </span>
+                            </div>
+                            ${p.packPrice ? `
+                                <div class="mt-2 pt-2 border-t border-dashed border-[#d5c7b3] flex items-center gap-1.5 text-xs text-[#8d5b31] font-semibold">
+                                    <i data-lucide="package" class="w-3.5 h-3.5"></i>
+                                    <span>Pack: ${p.packPrice}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // Funciones del Modal de Producto
+        function openModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product || !product.inStock) return;
+
+            document.getElementById('modalImage').src = product.image;
+            document.getElementById('modalImage').onerror = function() {
+                this.src = 'https://placehold.co/400x300/eaddca/5c4033?text=Producto';
+            };
+            document.getElementById('modalTitle').textContent = product.name;
+            document.getElementById('modalCategory').textContent = product.category;
+            
+            // Renderizado de precios dentro del modal
+            const priceHtml = `
+                <div>
+                    <span class="text-xs text-stone-600 block">Precio actual</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl font-bold text-[#362f27]">$${product.price.toLocaleString('es-AR')}</span>
+                        ${product.oldPrice ? `<span class="text-sm text-stone-400 line-through">$${product.oldPrice.toLocaleString('es-AR')}</span>` : ''}
+                    </div>
+                    ${product.packPrice ? `<div class="text-xs text-[#8d5b31] font-semibold mt-1 flex items-center gap-1"><i data-lucide="package" class="w-3.5 h-3.5"></i> Pack: ${product.packPrice}</div>` : ''}
+                </div>
+            `;
+            document.getElementById('modalPrice').innerHTML = priceHtml;
+
+            const badgeContainer = document.getElementById('modalBadgeContainer');
+            if (product.badge) {
+                badgeContainer.innerHTML = `<span class="bg-[#a97142] text-white text-xs font-bold px-2.5 py-1 rounded shadow border border-[#8d5b31]">${product.badge}</span>`;
+            } else {
+                badgeContainer.innerHTML = '';
+            }
+
+            const stockStatus = document.getElementById('modalStockStatus');
+            stockStatus.innerHTML = `
+                <span class="text-sm ${product.inStock ? 'text-[#3b5323] bg-[#e3ebd8] border border-[#c1d3af]' : 'text-stone-600 bg-stone-200'} px-3 py-1 rounded font-medium">
+                    ${product.inStock ? 'Disponible' : 'Sin stock'}
+                </span>
+            `;
+
+            // Enlace directo a WhatsApp con mensaje personalizado para este producto
+            const packText = product.packPrice ? ` (Precio pack: ${product.packPrice})` : '';
+            const textMsg = encodeURIComponent(`Hola! Quisiera consultar disponibilidad sobre: ${product.name} ($${product.price})${packText}.`);
+            document.getElementById('modalWhatsappLink').href = `https://wa.me/5493364545609?text=${textMsg}`;
+
+            const modal = document.getElementById('productModal');
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            document.getElementById('productModal').classList.add('hidden');
+        }
+
+        // Cerrar modal haciendo clic afuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('productModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
